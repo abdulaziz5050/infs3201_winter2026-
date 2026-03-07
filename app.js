@@ -3,7 +3,7 @@ const exphbs = require("express-handlebars");
 const { connectDB } = require("./db.js");
 const app = express();
 
-const { getAllEmployees, getEmployeeById, getShiftsForEmployee } = require("./business.js");
+const { getAllEmployees, getEmployeeById, getShiftsForEmployee, updateEmployee } = require("./business.js");
 
 app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
@@ -44,6 +44,36 @@ app.get("/employee/:id", async (req, res) => {
         });
     } catch (err) {
         res.status(500).send("Error loading employee details");
+    }
+});
+
+app.get("/employee/:id/edit", async (req, res) => {
+    try {
+        const employee = await getEmployeeById(req.params.id);
+        if (!employee) {
+            return res.status(404).send("Employee not found");
+        }
+        res.render("editEmployee", { employee });
+    } catch (err) {
+        res.status(500).send("Error loading edit page");
+    }
+});
+
+app.post("/employee/:id/edit", async (req, res) => {
+    try {
+        let name = req.body.name.trim();
+        let phone = req.body.phone.trim();
+
+        const regex = /^\d{4}-\d{4}$/;
+
+        if (name === "" || !regex.test(phone)) {
+            return res.status(400).send("Invalid input");
+        }
+
+        await updateEmployee(req.params.id, name, phone);
+        res.redirect("/");
+    } catch (err) {
+        res.status(500).send("Error updating employee");
     }
 });
 
