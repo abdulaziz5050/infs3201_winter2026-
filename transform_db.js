@@ -2,23 +2,19 @@
 
 const { connectDB, getDB } = require('./db.js');
 
-/**
- * Stage 1: Add empty employees array to all shifts
- */
+
 async function createEmployeesArray() {
     const db = getDB();
     const shifts = db.collection("shifts");
 
-    console.log("Adding empty employees array to all shifts...");
+    console.log("Add empty employees array to all shifts");
     await shifts.updateMany(
         {},
         { $set: { employees: [] } }
     );
 }
 
-/**
- * Stage 2: Embed employee ObjectIds into shifts based on assignments collection
- */
+
 async function embedEmployees() {
     const db = getDB();
     const assignments = await db.collection("assignments").find().toArray();
@@ -43,9 +39,7 @@ async function embedEmployees() {
     }
 }
 
-/**
- * Stage 3: Cleanup legacy fields and collections
- */
+
 async function cleanupLegacyData() {
     const db = getDB();
 
@@ -63,7 +57,6 @@ async function cleanupLegacyData() {
         { $unset: { shiftId: "" } }
     );
 
-    // Drop assignments collection
     try {
         await db.collection("assignments").drop();
         console.log("Collection 'assignments' dropped.");
