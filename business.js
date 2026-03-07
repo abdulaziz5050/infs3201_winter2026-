@@ -108,5 +108,6 @@ module.exports = {
     createSession: persistence.createInternalSession,
     getSession: persistence.getInternalSession,
     extendSession: persistence.extendInternalSession,
-    deleteSession: persistence.deleteInternalSession
+    deleteSession: persistence.deleteInternalSession,
+    logSecurityEvent: persistence.logSecurityEvent
 };

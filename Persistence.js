@@ -161,6 +161,17 @@ async function deleteInternalSession(sessionId) {
     await db.collection('sessions').deleteOne({ sessionId });
 }
 
+async function logSecurityEvent(event) {
+    await connectDB();
+    const db = getDB();
+    await db.collection('security_log').insertOne({
+        timestamp: new Date(),
+        username: event.username || "unknown",
+        url: event.url,
+        method: event.method
+    });
+}
+
 module.exports = {
     connectDB,
     getEmployeeData,
@@ -174,5 +185,6 @@ module.exports = {
     createInternalSession,
     getInternalSession,
     extendInternalSession,
-    deleteInternalSession
+    deleteInternalSession,
+    logSecurityEvent
 };

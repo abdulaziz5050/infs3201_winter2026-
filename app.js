@@ -13,7 +13,8 @@ const {
     createSession,
     getSession,
     extendSession,
-    deleteSession
+    deleteSession,
+    logSecurityEvent
 } = require("./business.js");
 
 app.engine("handlebars", exphbs.engine());
@@ -23,37 +24,51 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Custom Session Middleware
+// 1. Session Identification Middleware
+// Sets req.sessionUser if a valid session exists
 const sessionMiddleware = async (req, res, next) => {
-    // List of public routes
-    const publicRoutes = ["/login", "/logout"];
-    if (publicRoutes.includes(req.path)) {
-        return next();
-    }
-
     const sessionId = req.cookies.session_id;
     if (sessionId) {
         const session = await getSession(sessionId);
         if (session) {
             await extendSession(sessionId);
-            req.user = session.username;
-            return next();
+            req.sessionUser = session.username;
         }
     }
+    next();
+};
 
+// 2. Security Logger Middleware
+// Logs every request
+const securityLogger = async (req, res, next) => {
+    await logSecurityEvent({
+        username: req.sessionUser || "unknown",
+        url: req.url,
+        method: req.method
+    });
+    next();
+};
+
+// 3. Authorization Middleware
+// Protects private routes
+const authGuard = (req, res, next) => {
+    const publicRoutes = ["/login", "/logout"];
+    if (publicRoutes.includes(req.path) || req.sessionUser) {
+        return next();
+    }
     res.redirect("/login");
 };
+
+app.use(sessionMiddleware);
+app.use(securityLogger);
+app.use(authGuard);
 
 connectDB().then(() => app.listen(3000, () => console.log("Server on port 3000"))
 ).catch(err => console.error("Failed to connect to MongoDB", err));
 
 // Login Routes
 app.get("/login", async (req, res) => {
-    const sessionId = req.cookies.session_id;
-    if (sessionId) {
-        const session = await getSession(sessionId);
-        if (session) return res.redirect("/");
-    }
+    if (req.sessionUser) return res.redirect("/");
     res.render("login", { error: req.query.error });
 });
 
@@ -78,9 +93,6 @@ app.get("/logout", async (req, res) => {
     res.clearCookie('session_id');
     res.redirect("/login");
 });
-
-// Protect all following routes
-app.use(sessionMiddleware);
 
 app.get("/", async (req, res) => {
     try {
