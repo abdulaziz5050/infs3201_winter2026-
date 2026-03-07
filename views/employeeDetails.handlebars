@@ -1,0 +1,33 @@
+<h1>Employee Details</h1>
+
+<div>
+    <p><strong>ID:</strong> {{employee.employeeId}}</p>
+    <p><strong>Name:</strong> {{employee.name}}</p>
+    <p><strong>Phone:</strong> {{employee.phone}}</p>
+</div>
+
+<hr>
+
+<h2>Assigned Shifts</h2>
+{{#if shifts.length}}
+<table border="1">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each shifts}}
+        <tr>
+            <td>{{date}}</td>
+            <td>{{startTime}}</td>
+            <td>{{endTime}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+{{else}}
+<p>No shifts assigned to this employee.</p>
+{{/if}}

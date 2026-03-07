@@ -1,18 +1,37 @@
 const persistence = require('./Persistence.js');
 
 
-async function getEmployeeList() {
-    return await persistence.getEmployeeData();  // Fixed to use the correct function
+async function getAllEmployees() {
+    return await persistence.getEmployeeData();
+}
+
+async function getEmployeeById(id) {
+    return await persistence.getEmployeeById(id);
 }
 
 async function createNewEmployee(name, phoneNumber) {
     return await persistence.addNewEmployee(name, phoneNumber);
 }
 
+async function getShiftsForEmployee(id) {
+    const shifts = await persistence.getShiftsForEmployee(id);
+    
+    // Sort shifts by date and then by startTime (oldest to newest)
+    shifts.sort((a, b) => {
+        if (a.date !== b.date) {
+            return a.date.localeCompare(b.date);
+        }
+        return a.startTime.localeCompare(b.startTime);
+    });
 
+    return shifts;
+}
 
 module.exports = {
-    getEmployeeList,
+    getAllEmployees,
+    getEmployeeById,
     createNewEmployee,
+    getShiftsForEmployee
 };
+
 

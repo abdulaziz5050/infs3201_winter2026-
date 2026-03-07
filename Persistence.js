@@ -66,12 +66,43 @@ async function addNewEmployee(name, phone) {
 }
 
 
+async function getShiftsForEmployee(empID) {
+    await connectDB();
+    const db = getDB();
+
+    const schedule = await db.collection('assignments').aggregate([
+        { $match: { employeeId: empID } },
+        {
+            $lookup: {
+                from: 'shifts',
+                localField: 'shiftId',
+                foreignField: 'shiftId',
+                as: 'shiftDetails'
+            }
+        },
+        { $unwind: '$shiftDetails' },
+        {
+            $project: {
+                _id: 0,
+                shiftId: '$shiftDetails.shiftId',
+                date: '$shiftDetails.date',
+                startTime: '$shiftDetails.startTime',
+                endTime: '$shiftDetails.endTime'
+            }
+        }
+    ]).toArray();
+
+    return schedule;
+}
+
+
 module.exports = {
     connectDB,
     getEmployeeData,
     getEmployeeById,
     getShiftData,
     updateEmployee,
-    addNewEmployee
+    addNewEmployee,
+    getShiftsForEmployee
 };
 
