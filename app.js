@@ -23,9 +23,9 @@ app.set("view engine", "handlebars");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static('public'));
 
-// 1. Session Identification Middleware
-// Sets req.sessionUser if a valid session exists
+
 const sessionMiddleware = async (req, res, next) => {
     const sessionId = req.cookies.session_id;
     if (sessionId) {
@@ -38,8 +38,7 @@ const sessionMiddleware = async (req, res, next) => {
     next();
 };
 
-// 2. Security Logger Middleware
-// Logs every request
+
 const securityLogger = async (req, res, next) => {
     await logSecurityEvent({
         username: req.sessionUser || "unknown",
@@ -49,8 +48,7 @@ const securityLogger = async (req, res, next) => {
     next();
 };
 
-// 3. Authorization Middleware
-// Protects private routes
+
 const authGuard = (req, res, next) => {
     const publicRoutes = ["/login", "/logout"];
     if (publicRoutes.includes(req.path) || req.sessionUser) {
@@ -66,7 +64,6 @@ app.use(authGuard);
 connectDB().then(() => app.listen(3000, () => console.log("Server on port 3000"))
 ).catch(err => console.error("Failed to connect to MongoDB", err));
 
-// Login Routes
 app.get("/login", async (req, res) => {
     if (req.sessionUser) return res.redirect("/");
     res.render("login", { error: req.query.error });
@@ -136,6 +133,7 @@ app.post("/employee/:id/edit", async (req, res) => {
     try {
         let name = req.body.name.trim();
         let phone = req.body.phone.trim();
+        let photo = req.body.photo ? req.body.photo.trim() : "";
 
         const regex = /^\d{4}-\d{4}$/;
 
@@ -143,7 +141,7 @@ app.post("/employee/:id/edit", async (req, res) => {
             return res.status(400).send("Invalid input");
         }
 
-        await updateEmployee(req.params.id, name, phone);
+        await updateEmployee(req.params.id, name, phone, photo);
         res.redirect("/");
     } catch (err) {
         res.status(500).send("Error updating employee");

@@ -42,14 +42,14 @@ async function getShiftData() {
  * @param {string} phone
  * @returns {Promise<void>}
  */
-async function updateEmployee(id, name, phone) {
+async function updateEmployee(id, name, phone, photo) {
     if (!id) return;
     await connectDB();
     const db = getDB();
     const empObjectId = new mongodb.ObjectId(id);
     await db.collection('employees').updateOne(
         { _id: empObjectId },
-        { $set: { name: name, phone: phone } }
+        { $set: { name: name, phone: phone, photo: photo } }
     );
 }
 

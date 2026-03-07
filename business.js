@@ -69,8 +69,8 @@ async function getShiftsForEmployee(id) {
  * @param {string} phone
  * @returns {Promise<void>}
  */
-async function updateEmployee(id, name, phone) {
-    return await persistence.updateEmployee(id, name, phone);
+async function updateEmployee(id, name, phone, photo) {
+    return await persistence.updateEmployee(id, name, phone, photo);
 }
 
 /**
