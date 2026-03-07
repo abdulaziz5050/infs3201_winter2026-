@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "express-handlebars": "^8.0.3",
+    "mongodb": "^7.1.0",
     "promises": "^0.2.5",
     "prompt-sync": "^4.2.0"
   }
