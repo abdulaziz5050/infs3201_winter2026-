@@ -1,21 +1,7 @@
 'use strict';
 
-const { MongoClient } = require('mongodb');
+const { connectDB, getDB } = require('./db.js');
 
-const url = 'mongodb+srv://qwwweeerrrt1212_db_user:01H6Lslrht3CcY0p@infs3201winter2026.v4ezdkt.mongodb.net/?appName=infs3201winter2026';
-const client = new MongoClient(url);
-const dbName = 'infs3201_winter2026';
-
-let db;
-
-
-async function connectDB() {
-    if (!db) {
-        await client.connect();
-        db = client.db(dbName);
-    }
-    return db;
-}
 
 
 async function getEmployeeData() {
